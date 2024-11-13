@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 
 // TODO допишите все необходимые сущности для игры
 public class Game extends JPanel implements ActionListener {
@@ -14,33 +15,125 @@ public class Game extends JPanel implements ActionListener {
 	private final int HEIGHT = 20;
 	private boolean gameOver = false;
 	private Timer timer;
+	private int xFood,yFood;
+	private int [] x = new int[WIDTH*TILE_SIZE];
+	private int [] y = new int[HEIGHT*TILE_SIZE];
+	private int snakeLength;
+	private int score ;
+	private JButton restartButton;
+	private int delay;
+
+
+	Motion motion;
 
 	public Game() {
 		setPreferredSize(new Dimension(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE));
-		setBackground(Color.BLACK);
+		setBackground(Color.BLUE);
 		setFocusable(true);
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				System.out.println("You pressed " + e.getKeyChar() + " key!");
-			}
-		});
-
-		timer = new Timer(100, this);
+		motion = new Motion(this);
+		addKeyListener(motion);
+		snakeLength = 3;
+		score = 0;
+		delay = 200;
+		for (int i = 0; i < snakeLength;i++){
+			x[i] = WIDTH*TILE_SIZE/2;
+			y[i] = HEIGHT*TILE_SIZE/2 + i*TILE_SIZE;
+		}
+		placeFood();
+		timer = new Timer(delay, this);
 		timer.start();
+		setLayout(null);
+		restartButton = new JButton("Restart");
+		restartButton.setBounds((WIDTH-4)*TILE_SIZE/2-10,(HEIGHT+2)*TILE_SIZE/2,90,2*TILE_SIZE);
+		restartButton.addActionListener(e -> restart());
+		restartButton.setVisible(false);
+		add(restartButton);
 	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
-	}
-
-	public void restart() {
-		timer.start();
+		if(!gameOver){
+			checkEat();
+			motion.move(snakeLength,x,y);
+			checkErrors();
+		}
 		repaint();
 	}
 
-	public boolean isGameOver() {
-		return gameOver;
+	private void checkErrors(){
+		if((x[0] < 0) || (y[0] < 0 ) || (x[0] >= WIDTH*TILE_SIZE) || (y[0] >= HEIGHT*TILE_SIZE)) gameOver = true;
+		for(int i = snakeLength;i>0;i--){
+			if((i > 3) && (x[0] == x[i]) && (y[0] == y[i])) gameOver = true;
+		}
+		if(gameOver) timer.stop();
+	}
+	private void checkEat(){
+		if((x[0] == xFood) && (y[0] == yFood)){
+			placeFood();
+			snakeLength++;
+			score++;
+			delay -= 10;
+			timer.setDelay(delay);
+		}
+	}
+	private void paintScore(Graphics g){
+		if(!gameOver){
+			g.setColor(Color.WHITE);
+			g.drawString("Score:"+score,TILE_SIZE,TILE_SIZE);
+		}
+	}
+	private void paintGameIsOver(Graphics g){
+		if(gameOver){
+			g.setColor(Color.RED);
+			g.drawString("GAME OVER",(WIDTH-4)*TILE_SIZE/2,(HEIGHT-1)*TILE_SIZE/2);
+			g.drawString("Your score:"+score,(WIDTH-4)*TILE_SIZE/2,(HEIGHT)*TILE_SIZE/2);
+			restartButton.setVisible(true);
+		}
+	}
+	private void paintFood(Graphics g){
+		if(!gameOver){
+				g.setColor(Color.CYAN);
+				g.fillOval(xFood,yFood,TILE_SIZE,TILE_SIZE);
+		}
+	}
+	private void paintSnake(Graphics g){
+		if(!gameOver){
+			for(int i = 0; i < snakeLength;i++){
+				if(i == 0){
+					g.setColor(Color.YELLOW);
+				}
+				else{
+					g.setColor(Color.BLACK);
+				}
+				g.fillRect(x[i],y[i],TILE_SIZE,TILE_SIZE);
+			}
+
+		}
+	}
+	private void placeFood(){
+		var random = new Random();
+		yFood = random.nextInt(HEIGHT)*TILE_SIZE;
+		xFood = random.nextInt(WIDTH)*TILE_SIZE;
+	}
+
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		paintFood(g);
+		paintSnake(g);
+		paintScore(g);
+		paintGameIsOver(g);
+	}
+
+	public void restart() {
+		gameOver = false;
+		snakeLength = 3;
+		for (int i = 0; i < snakeLength;i++){
+			x[i] = WIDTH*TILE_SIZE/2;
+			y[i] = HEIGHT*TILE_SIZE/2 + i*TILE_SIZE;
+		}
+		placeFood();
+		timer.start();
+		restartButton.setVisible(false);
+		repaint();
 	}
 }

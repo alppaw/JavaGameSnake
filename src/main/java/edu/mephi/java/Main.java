@@ -16,15 +16,14 @@ public class Main {
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-
 		game.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (game.isGameOver() && e.getKeyCode() == KeyEvent.VK_R) {
+				super.keyPressed(e);
+				if(e.getKeyCode() == KeyEvent.VK_R){
 					game.restart();
 				}
 			}
 		});
-
 	}
 }
