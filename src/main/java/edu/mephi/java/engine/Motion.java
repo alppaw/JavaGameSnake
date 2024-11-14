@@ -4,7 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class Motion extends KeyAdapter {
-    private char direction = 'U';
+    public char direction = 'U';
     public final int TILE_SIZE = 20;
     private Game game;
 

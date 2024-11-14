@@ -22,7 +22,8 @@ public class Game extends JPanel implements ActionListener {
 	private int score ;
 	private JButton restartButton;
 	private int delay;
-
+	private int record;
+	private int newRecord;
 
 	Motion motion;
 
@@ -33,6 +34,8 @@ public class Game extends JPanel implements ActionListener {
 		motion = new Motion(this);
 		addKeyListener(motion);
 		snakeLength = 3;
+		record = 0;
+		newRecord = 0;
 		score = 0;
 		delay = 200;
 		for (int i = 0; i < snakeLength;i++){
@@ -71,6 +74,7 @@ public class Game extends JPanel implements ActionListener {
 			placeFood();
 			snakeLength++;
 			score++;
+			newRecord++;
 			delay -= 10;
 			timer.setDelay(delay);
 		}
@@ -78,7 +82,17 @@ public class Game extends JPanel implements ActionListener {
 	private void paintScore(Graphics g){
 		if(!gameOver){
 			g.setColor(Color.WHITE);
-			g.drawString("Score:"+score,TILE_SIZE,TILE_SIZE);
+			g.drawString("Score:"+score,0,TILE_SIZE);
+		}
+	}
+	private void paintRecord(Graphics g){
+		if(!gameOver){
+			g.setColor(Color.WHITE);
+			g.drawString("Record:" + record,0,2*TILE_SIZE);
+		}
+		if(gameOver){
+			g.setColor(Color.WHITE);
+			g.drawString("Record:" + record,(WIDTH-3)*TILE_SIZE/2,(HEIGHT+1)*TILE_SIZE/2);
 		}
 	}
 	private void paintGameIsOver(Graphics g){
@@ -123,16 +137,24 @@ public class Game extends JPanel implements ActionListener {
 		paintSnake(g);
 		paintScore(g);
 		paintGameIsOver(g);
+		paintRecord(g);
 	}
 
 	public void restart() {
+		if((newRecord > record )){
+			record = score;
+		}
 		gameOver = false;
 		snakeLength = 3;
 		score = 0;
+		delay = 200;
+		motion.direction = 'U';
+		setBackground(Color.BLUE);
 		for (int i = 0; i < snakeLength;i++){
 			x[i] = WIDTH*TILE_SIZE/2;
 			y[i] = HEIGHT*TILE_SIZE/2 + i*TILE_SIZE;
 		}
+		timer.setDelay(delay);
 		placeFood();
 		timer.start();
 		restartButton.setVisible(false);
