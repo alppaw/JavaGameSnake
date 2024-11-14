@@ -84,6 +84,7 @@ public class Game extends JPanel implements ActionListener {
 	private void paintGameIsOver(Graphics g){
 		if(gameOver){
 			g.setColor(Color.RED);
+			setBackground(Color.BLACK);
 			g.drawString("GAME OVER",(WIDTH-4)*TILE_SIZE/2,(HEIGHT-1)*TILE_SIZE/2);
 			g.drawString("Your score:"+score,(WIDTH-4)*TILE_SIZE/2,(HEIGHT)*TILE_SIZE/2);
 			restartButton.setVisible(true);
@@ -127,6 +128,7 @@ public class Game extends JPanel implements ActionListener {
 	public void restart() {
 		gameOver = false;
 		snakeLength = 3;
+		score = 0;
 		for (int i = 0; i < snakeLength;i++){
 			x[i] = WIDTH*TILE_SIZE/2;
 			y[i] = HEIGHT*TILE_SIZE/2 + i*TILE_SIZE;
